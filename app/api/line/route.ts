@@ -1,195 +1,170 @@
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-    try {
-        const body = await req.json();
-        const { name, email, subject, message, user, address, items, total } = body;
+  try {
+    const body = await req.json();
 
-        if (!name || !email || !message) {
-            return NextResponse.json(
-                { success: false, message: "กรุณากรอกข้อมูลให้ครบถ้วน" },
-                { status: 400 }
-            );
-        }
+    // รับค่าตามที่หน้าบ้านส่งมา (เพิ่ม phoneNumber)
+    const { name, email, message, address, total, phoneNumber } = body;
 
-        const LINE_CHANNEL_ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-        const TO = process.env.LINE_TO;
+    const TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+    const TO = process.env.LINE_TO;
 
-        if (!LINE_CHANNEL_ACCESS_TOKEN || !TO) {
-            return NextResponse.json(
-                { success: false, message: "LINE bot token หรือ TO ยังไม่ได้ตั้งค่า" },
-                { status: 500 }
-            );
-        }
-
-        const orderAddress = address || {};
-        const userName = `${orderAddress.fullName || "-"}, `;
-        const fullAddress = `${orderAddress.area || "-"}, ${orderAddress.city || "-"}, ${orderAddress.state || "-"}, ${orderAddress.pincode || "-"}`;
-        const phoneNumberID = `${orderAddress.phoneNumber || "-"}, `;
-
-        const orderDate = new Date();
-        const formattedDate = orderDate.toLocaleString("th-TH", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-        });
-
-        // ✅ สร้าง Flex Message
-        const flexMessage = {
-            type: "flex",
-            altText: "📦 มีออเดอร์ใหม่เข้ามา!",
-            contents: {
-                type: "bubble",
-                size: "giga",
-                body: {
-                    type: "box",
-                    layout: "vertical",
-                    contents: [
-                        {
-                            type: "text",
-                            text: "📦 รายละเอียดออเดอร์ใหม่",
-                            weight: "bold",
-                            size: "lg",
-                            color: "#1DB446",
-                            margin: "none",
-                        },
-                        {
-                            type: "box",
-                            layout: "vertical",
-                            margin: "md",
-                            spacing: "sm",
-                            contents: [
-                                {
-                                    type: "text",
-                                    text: `👤 ผู้สั่ง: ${userName}`,
-                                    wrap: true,
-                                },
-                                {
-                                    type: "text",
-                                    text: `📞 เบอร์โทร: ${phoneNumberID}`,
-                                    wrap: true,
-                                },
-                                {
-                                    type: "text",
-                                    text: `🏠 ที่อยู่: ${fullAddress}`,
-                                    wrap: true,
-                                },
-                            ],
-                        },
-                        {
-                            type: "text",
-                            text: `🕒 วันที่สั่งซื้อ: ${formattedDate}`,
-                            wrap: true,
-                            margin: "sm",
-                            size: "sm",
-                            color: "#555555",
-                        },
-                        {
-                            type: "separator",
-                            margin: "md",
-                        },
-                        {
-                            type: "separator",
-                            margin: "md",
-                        },
-                        {
-                            type: "box",
-                            layout: "horizontal",
-                            margin: "md",
-                            contents: [
-                                {
-                                    type: "text",
-                                    text: "ยอดรวมทั้งหมด",
-                                    weight: "bold",
-                                    size: "sm",
-                                },
-                                {
-                                    type: "text",
-                                    text: `฿${total || 0}`,
-                                    size: "sm",
-                                    weight: "bold",
-                                    align: "end",
-                                    color: "#E53935",
-                                },
-                            ],
-                        },
-                    ],
-                },
-                footer: {
-                    type: "box",
-                    layout: "vertical",
-                    contents: [
-                        {
-                            type: "button",
-                            style: "primary",
-                            color: "#1DB446",
-                            action: {
-                                type: "uri",
-                                label: "ดูรายละเอียดออเดอร์",
-                                uri: "https://sonklin.vercel.app/seller/orders",
-                            },
-                        },
-                    ],
-                },
-            },
-        };
-
-        // ✅ ส่ง Flex Message ไป LINE
-        const res = await fetch("https://api.line.me/v2/bot/message/push", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
-            },
-            body: JSON.stringify({
-                to: TO,
-                messages: [flexMessage],
-            }),
-        });
-
-        if (!res.ok) {
-            const errText = await res.text();
-            console.error("LINE API response:", res.status, errText);
-
-            // ถ้า Flex ล้มเหลว → fallback ส่งข้อความธรรมดา
-            const textMessage = `
-📦 มีออเดอร์ใหม่เข้ามา!
-👤 ผู้สั่ง: ${userName}
-📞 เบอร์โทร: ${phoneNumberID}
-🏠 ที่อยู่: ${fullAddress}
-🕒 วันที่สั่งซื้อ: ${formattedDate}
-💰 ยอดรวม: ฿${total || 0}
-🍮 รายการสินค้า:
-กดดูรายละเอียดเพิ่มเติมได้ที่ร้านของคุณ: ${'https://sonklin.vercel.app/seller/orders'}
-${(items || [])
-                    .map(
-                        (i: any) =>
-                            `• ${i.product} x${i.quantity}${i.price ? ` (฿${i.price})` : ""}`
-                    )
-                    .join("\n")}
-`;
-
-            await fetch("https://api.line.me/v2/bot/message/push", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${LINE_CHANNEL_ACCESS_TOKEN}`,
-                },
-                body: JSON.stringify({
-                    to: TO,
-                    messages: [{ type: "text", text: textMessage }],
-                }),
-            });
-        }
-
-        return NextResponse.json({ success: true, message: "ส่งข้อความสำเร็จ!" });
-    } catch (error: any) {
-        console.error("LINE API error:", error);
-        return NextResponse.json(
-            { success: false, message: error.message || "เกิดข้อผิดพลาด" },
-            { status: 500 }
-        );
+    if (!TOKEN || !TO) {
+      console.error("Missing LINE Config");
+      return NextResponse.json({ success: false }, { status: 500 });
     }
+
+    const displayUser = name || "ลูกค้าทั่วไป";
+    const displayAddress = address || "ไม่ได้ระบุที่อยู่";
+    const displayTotal = total || "0";
+    const displayNote = message || "-";
+    const displayPhone = phoneNumber || "ไม่ได้ระบุเบอร์โทร";
+    const formattedDate = new Date().toLocaleString("th-TH");
+
+    // สร้าง Flex Message
+    const flexMessage = {
+      type: "flex",
+      altText: `📦 ออเดอร์ใหม่จากคุณ ${displayUser}`,
+      contents: {
+        type: "bubble",
+        body: {
+          type: "box",
+          layout: "vertical",
+          contents: [
+            {
+              type: "text",
+              text: "📦 รายการสั่งซื้อใหม่",
+              weight: "bold",
+              color: "#1DB446",
+              size: "lg",
+            },
+            { type: "separator", margin: "md" },
+            {
+              type: "box",
+              layout: "vertical",
+              margin: "md",
+              spacing: "sm",
+              contents: [
+                {
+                  type: "text",
+                  text: `👤 ชื่อ: ${displayUser}`,
+                  size: "sm",
+                  wrap: true,
+                  weight: "bold",
+                },
+                {
+                  type: "text",
+                  text: `📞 เบอร์โทร: ${displayPhone}`,
+                  size: "sm",
+                  color: "#E53935",
+                  weight: "bold",
+                },
+                {
+                  type: "text",
+                  text: `📧 อีเมล: ${email || "-"}`,
+                  size: "sm",
+                  wrap: true,
+                },
+                {
+                  type: "text",
+                  text: `🏠 ที่อยู่จัดส่ง:`,
+                  size: "sm",
+                  weight: "bold",
+                  margin: "md",
+                },
+                {
+                  type: "text",
+                  text: displayAddress,
+                  size: "sm",
+                  wrap: true,
+                  color: "#666666",
+                },
+                {
+                  type: "text",
+                  text: `📝 หมายเหตุ: ${displayNote}`,
+                  size: "sm",
+                  wrap: true,
+                  color: "#ff6b00",
+                },
+              ],
+            },
+            { type: "separator", margin: "lg" },
+            {
+              type: "box",
+              layout: "horizontal",
+              margin: "lg",
+              contents: [
+                {
+                  type: "text",
+                  text: "ยอดรวมสุทธิ",
+                  weight: "bold",
+                  size: "md",
+                },
+                {
+                  type: "text",
+                  text: displayTotal,
+                  align: "end",
+                  weight: "bold",
+                  size: "md",
+                  color: "#E53935",
+                },
+              ],
+            },
+            {
+              type: "text",
+              text: `🕒 ${formattedDate}`,
+              size: "xxs",
+              color: "#aaaaaa",
+              margin: "md",
+              align: "end",
+            },
+          ],
+        },
+        // --- ส่วนที่เพิ่มปุ่มกด ---
+        footer: {
+          type: "box",
+          layout: "vertical",
+          spacing: "sm",
+          contents: [
+            {
+              type: "button",
+              style: "primary",
+              color: "#ff6b00",
+              height: "sm",
+              action: {
+                type: "uri",
+                label: "ดูรายละเอียดออเดอร์",
+                uri: "https://sonklin.vercel.app/seller/orders",
+              },
+            },
+          ],
+        },
+      },
+    };
+
+    const res = await fetch("https://api.line.me/v2/bot/message/push", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${TOKEN}`,
+      },
+      body: JSON.stringify({ to: TO, messages: [flexMessage] }),
+    });
+
+    const resData = await res.json();
+
+    if (!res.ok) {
+      console.error("LINE API Error:", resData);
+      return NextResponse.json(
+        { success: false, error: resData },
+        { status: res.status }
+      );
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("Server Error:", error);
+    return NextResponse.json({ success: false }, { status: 500 });
+  }
 }
