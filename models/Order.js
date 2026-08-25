@@ -14,6 +14,9 @@ const orderSchema = new mongoose.Schema({
   // 👇 เพิ่มฟิลด์นี้เข้าไป เพื่อให้ระบบบันทึกสถานะเงินเข้าได้
   payment: { type: Boolean, required: true, default: false },
   // ----------------------------------------------------
+  slipImage: { type: String, default: "" },
+  trackingNumber: { type: String, default: "" },
+  courier: { type: String, default: "" },
   date: { type: Number, required: true },
 });
 

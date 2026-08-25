@@ -31,6 +31,14 @@ export async function POST(request) {
         for (const item of items) {
             const product = productMap[item.product];
             if (!product) continue;
+
+            // Check stock
+            if (product.stock < item.quantity) {
+                return NextResponse.json({ success: false, message: `สินค้า ${product.name} มีสต๊อกไม่เพียงพอ` });
+            }
+            product.stock -= item.quantity;
+            await product.save();
+
             amount += product.offerPrice * item.quantity;
         }
 

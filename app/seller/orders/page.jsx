@@ -85,6 +85,23 @@ const SellerOrders = () => {
     }
   };
 
+  // อัปเดตข้อมูลการจัดส่ง (Tracking)
+  const updateTracking = async (orderId, courier, trackingNumber) => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.post(
+        "/api/order/status",
+        { orderId, courier, trackingNumber },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success) {
+        toast.success("บันทึกข้อมูลจัดส่งแล้ว");
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -214,6 +231,19 @@ const SellerOrders = () => {
                     </p>
                   </div>
 
+                  {order.slipImage && (
+                    <div className="mb-6">
+                      <a 
+                        href={order.slipImage} 
+                        target="_blank" 
+                        rel="noreferrer"
+                        className="block w-full text-center py-2 bg-blue-50 text-blue-600 border border-blue-200 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-100 transition-colors"
+                      >
+                        ดูสลิปโอนเงิน
+                      </a>
+                    </div>
+                  )}
+
                   <p className="text-[10px] font-bold text-gray-400 uppercase mb-3 text-center tracking-widest">
                     ยืนยันสถานะเงินเข้า
                   </p>
@@ -266,9 +296,33 @@ const SellerOrders = () => {
                       <option value="Cancelled">ยกเลิกออเดอร์</option>
                     </select>
 
-                    <button className="w-full bg-gray-900 text-white py-4 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-lg shadow-gray-200">
-                      พิมพ์ใบปะหน้า
-                    </button>
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="บริษัทขนส่ง"
+                        value={order.courier || ""}
+                        onChange={(e) => setOrders(prev => prev.map(o => o._id === order._id ? { ...o, courier: e.target.value } : o))}
+                        className="w-1/2 p-3 rounded-xl border border-gray-200 text-xs outline-none focus:border-blue-500"
+                      />
+                      <input
+                        type="text"
+                        placeholder="เลขพัสดุ (Tracking)"
+                        value={order.trackingNumber || ""}
+                        onChange={(e) => setOrders(prev => prev.map(o => o._id === order._id ? { ...o, trackingNumber: e.target.value } : o))}
+                        className="w-1/2 p-3 rounded-xl border border-gray-200 text-xs outline-none focus:border-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => updateTracking(order._id, order.courier, order.trackingNumber)}
+                        className="flex-1 bg-blue-600 text-white py-3 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-blue-700 transition-all active:scale-95 shadow-md shadow-blue-200">
+                        บันทึก Tracking
+                      </button>
+                      <button className="flex-1 bg-gray-900 text-white py-3 rounded-xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all active:scale-95 shadow-md shadow-gray-200">
+                        พิมพ์ใบปะหน้า
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

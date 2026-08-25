@@ -7,10 +7,15 @@ export async function POST(request) {
     // 3. เชื่อมต่อ Database ก่อนทำรายการเสมอ
     await connectDB();
 
-    const { orderId, status } = await request.json();
+    const { orderId, status, courier, trackingNumber } = await request.json();
 
-    // 4. ใช้ Model ที่ import มา (ในที่นี้ใช้ชื่อ Order แทน OrderModel เพื่อความกระชับ)
-    await Order.findByIdAndUpdate(orderId, { status: status });
+    let updateData = {};
+    if (status) updateData.status = status;
+    if (courier !== undefined) updateData.courier = courier;
+    if (trackingNumber !== undefined) updateData.trackingNumber = trackingNumber;
+
+    // 4. ใช้ Model ที่ import มา
+    await Order.findByIdAndUpdate(orderId, updateData);
 
     return NextResponse.json({ success: true, message: "Status Updated" });
   } catch (error) {
