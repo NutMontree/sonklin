@@ -14,6 +14,7 @@ const SideBar = () => {
       icon: assets.product_list_icon,
     },
     { name: "การสั่งซื้อ", path: "/seller/orders", icon: assets.order_icon },
+    { name: "ลูกค้า", path: "/seller/users", icon: assets.user_icon },
   ];
 
   return (

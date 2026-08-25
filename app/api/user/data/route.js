@@ -3,6 +3,8 @@ import User from '@/models/User'
 import { getAuth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request) {
     try {
         const { userId } = getAuth(request)

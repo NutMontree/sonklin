@@ -218,7 +218,7 @@ const OrderSummary = () => {
                 onClick={() => router.push("/add-address")}
                 className="px-4 py-3 hover:bg-gray-100 cursor-pointer text-center text-xs font-bold text-orange-600 border-t border-gray-100"
               >
-                + Add New Address
+                + เพิ่มที่อยู่ใหม่
               </li>
             </ul>
           )}

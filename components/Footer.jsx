@@ -23,26 +23,26 @@ const Footer = () => {
 
         <div className="w-1/2 flex items-center justify-start md:justify-center">
           <div>
-            <h2 className="font-medium text-gray-900 mb-5">Company</h2>
+            <h2 className="font-medium text-gray-900 mb-5">บริษัท</h2>
             <ul className="text-sm space-y-2">
               <li>
                 <a className="hover:underline transition" href="/">
-                  Home
+                  หน้าแรก
                 </a>
               </li>
               <li>
                 <a className="hover:underline transition" href="/about">
-                  About us
+                  เกี่ยวกับเรา
                 </a>
               </li>
               <li>
                 <a className="hover:underline transition" href="/contact">
-                  Contact us
+                  ติดต่อเรา
                 </a>
               </li>
               <li>
                 <a className="hover:underline transition" href="#">
-                  Privacy policy
+                  นโยบายความเป็นส่วนตัว
                 </a>
               </li>
             </ul>
@@ -62,7 +62,7 @@ const Footer = () => {
       <div className="flex justify-center">
         <div className="py-4 text-center text-xs md:text-sm flex-none md:flex">
           <div className="flex gap-1">
-            <div>Copyright 2025 ©</div>
+            <div>สงวนลิขสิทธิ์ 2025 ©</div>
             <Link
               href="https://allmaster.vercel.app/"
               className="hover:text-blue-500"
@@ -70,7 +70,7 @@ const Footer = () => {
               AllMaster
             </Link>
           </div>
-          <div>All Right Reserved.</div>
+          <div className="ml-1">ขอสงวนสิทธิ์ทุกประการ</div>
         </div>
       </div>
     </footer>

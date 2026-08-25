@@ -12,6 +12,10 @@ const userSchema = new mongoose.Schema({
     wishlist: {
         type: Array,
         default: []
+    },
+    role: {
+        type: String,
+        default: "user"
     }
 }, { minimize: false });
 

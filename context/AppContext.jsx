@@ -40,8 +40,9 @@ export const AppContextProvider = (props) => {
 
   const fetchUserData = async () => {
     try {
+      let userIsSeller = false;
       if (user.publicMetadata.role === "seller") {
-        setIsSeller(true);
+        userIsSeller = true;
       }
 
       const token = await getToken();
@@ -53,9 +54,15 @@ export const AppContextProvider = (props) => {
       if (data.success) {
         setUserData(data.user);
         setCartItems(data.user.cartItems);
+        // ให้สิทธิ์ Seller ถ้าเป็น Admin ใน MongoDB ด้วย
+        if (data.user.role === 'admin') {
+            userIsSeller = true;
+        }
       } else {
         toast.error(data.message);
       }
+      
+      setIsSeller(userIsSeller);
     } catch (error) {
       toast.error(error.message);
     }

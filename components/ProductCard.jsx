@@ -12,34 +12,38 @@ const ProductCard = ({ product }) => {
         router.push("/product/" + product._id);
         scrollTo(0, 0);
       }}
-      className="flex flex-col items-start gap-0.5 max-w-[200px] w-full cursor-pointer"
+      className="group flex flex-col items-start gap-0.5 w-full cursor-pointer bg-white rounded-2xl p-3 md:p-4 shadow-[0_4px_20px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_20px_40px_-15px_rgba(255,100,0,0.15)] hover:-translate-y-2 transition-all duration-300 border border-gray-50 hover:border-orange-100"
     >
-      <div className="cursor-pointer group relative bg-gray-500/10 rounded-lg w-full h-52 flex items-center justify-center">
+      <div className="relative bg-gray-50/50 rounded-xl w-full aspect-square flex items-center justify-center overflow-hidden mb-3">
         <Image
           src={product.image[0]}
           alt={product.name}
-          className="group-hover:scale-105 transition object-cover w-4/5 h-4/5 md:w-full md:h-full"
+          className="group-hover:scale-110 transition-transform duration-500 object-cover w-full h-full mix-blend-multiply"
           width={800}
           height={800}
         />
-        <button className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md">
-          <Image className="h-3 w-3" src={assets.heart_icon} alt="heart_icon" />
+        {/* Hover overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+        
+        <button className="absolute top-3 right-3 bg-white/90 backdrop-blur p-2 rounded-full shadow-md hover:bg-orange-50 hover:scale-110 transition-all z-10 active:scale-95">
+          <Image className="h-3.5 w-3.5 opacity-70" src={assets.heart_icon} alt="heart_icon" />
         </button>
       </div>
 
-      <p className="md:text-base font-medium pt-2 w-full truncate">
+      <p className="md:text-base text-sm font-black text-gray-800 w-full truncate group-hover:text-orange-600 transition-colors">
         {product.name}
       </p>
-      <p className="w-full text-xs text-gray-500/70 max-sm:hidden truncate">
+      <p className="w-full text-xs text-gray-400 line-clamp-1 max-sm:hidden leading-relaxed">
         {product.description}
       </p>
-      <div className="flex items-center gap-2">
-        <p className="text-xs">{4.5}</p>
+      
+      <div className="flex items-center gap-2 mt-1">
+        <p className="text-xs font-bold text-orange-500">{4.5}</p>
         <div className="flex items-center gap-0.5">
           {Array.from({ length: 5 }).map((_, index) => (
             <Image
               key={index}
-              className="h-3 w-3"
+              className="h-2.5 w-2.5"
               src={
                 index < Math.floor(4) ? assets.star_icon : assets.star_dull_icon
               }
@@ -49,11 +53,11 @@ const ProductCard = ({ product }) => {
         </div>
       </div>
 
-      <div className="flex items-end justify-between w-full mt-1">
-        <p className="text-base font-medium">
-          {/* {currency} */}฿{product.offerPrice}
+      <div className="flex items-end justify-between w-full mt-3 pt-3 border-t border-gray-100">
+        <p className="text-lg font-black text-gray-900 tracking-tight">
+          <span className="text-xs font-medium text-gray-400 mr-0.5">฿</span>{product.offerPrice}
         </p>
-        <button className=" max-sm:hidden px-4 py-1.5 text-gray-500 border border-gray-500/20 rounded-full text-xs hover:bg-slate-50 transition">
+        <button className="max-sm:hidden px-4 py-1.5 bg-gray-50 text-gray-600 font-bold rounded-xl text-[11px] group-hover:bg-gradient-to-r group-hover:from-orange-500 group-hover:to-orange-600 group-hover:text-white transition-all shadow-sm group-hover:shadow-orange-200 uppercase tracking-wider">
           ซื้อเลย
         </button>
       </div>
