@@ -13,7 +13,8 @@ const Banner = () => {
         <Image 
           className="max-w-64 xl:max-w-80 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform -translate-x-4 md:-translate-x-8" 
           src={assets.a2} 
-          alt="a2" 
+          alt="a2"
+          priority 
         />
       </div>
       
@@ -38,7 +39,8 @@ const Banner = () => {
         <Image 
           className="max-w-64 xl:max-w-80 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)] transform translate-x-4 md:translate-x-8" 
           src={assets.a1} 
-          alt="a1" 
+          alt="a1"
+          priority 
         />
       </div>
       
@@ -47,7 +49,8 @@ const Banner = () => {
         <Image 
           className="max-w-64 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.5)]" 
           src={assets.a1} 
-          alt="a1" 
+          alt="a1"
+          priority 
         />
       </div>
     </div>
